@@ -1,6 +1,7 @@
 """Main GUI application for MarkItDown file converter."""
 
 import os
+import platform
 import sys
 import threading
 import tkinter as tk
@@ -10,6 +11,19 @@ from typing import Optional
 
 from markitdown_app.converter import FileConverter, SUPPORTED_EXTENSIONS, ConversionResult
 
+
+def _get_fonts() -> dict[str, str]:
+    """Return platform-appropriate font families."""
+    system = platform.system()
+    if system == "Darwin":
+        return {"ui": "SF Pro Text", "mono": "Menlo"}
+    elif system == "Windows":
+        return {"ui": "Segoe UI", "mono": "Consolas"}
+    else:
+        return {"ui": "DejaVu Sans", "mono": "DejaVu Sans Mono"}
+
+
+_FONTS = _get_fonts()
 
 # Color scheme
 COLORS = {
@@ -63,43 +77,43 @@ class MarkItDownApp:
             "TLabel",
             background=COLORS["bg"],
             foreground=COLORS["text"],
-            font=("Segoe UI", 10),
+            font=(_FONTS["ui"], 10),
         )
         style.configure(
             "Title.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["text"],
-            font=("Segoe UI", 18, "bold"),
+            font=(_FONTS["ui"], 18, "bold"),
         )
         style.configure(
             "Subtitle.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["text_dim"],
-            font=("Segoe UI", 10),
+            font=(_FONTS["ui"], 10),
         )
         style.configure(
             "Section.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["text"],
-            font=("Segoe UI", 11, "bold"),
+            font=(_FONTS["ui"], 11, "bold"),
         )
         style.configure(
             "Status.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["text_dim"],
-            font=("Segoe UI", 9),
+            font=(_FONTS["ui"], 9),
         )
         style.configure(
             "Success.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["success"],
-            font=("Segoe UI", 9),
+            font=(_FONTS["ui"], 9),
         )
         style.configure(
             "Error.TLabel",
             background=COLORS["bg"],
             foreground=COLORS["error"],
-            font=("Segoe UI", 9),
+            font=(_FONTS["ui"], 9),
         )
 
         # Buttons
@@ -107,7 +121,7 @@ class MarkItDownApp:
             "Primary.TButton",
             background=COLORS["primary"],
             foreground="white",
-            font=("Segoe UI", 10, "bold"),
+            font=(_FONTS["ui"], 10, "bold"),
             padding=(16, 8),
             borderwidth=0,
         )
@@ -120,7 +134,7 @@ class MarkItDownApp:
             "Secondary.TButton",
             background=COLORS["surface_light"],
             foreground=COLORS["text"],
-            font=("Segoe UI", 10),
+            font=(_FONTS["ui"], 10),
             padding=(12, 6),
             borderwidth=0,
         )
@@ -132,7 +146,7 @@ class MarkItDownApp:
             "Danger.TButton",
             background=COLORS["error"],
             foreground="white",
-            font=("Segoe UI", 10),
+            font=(_FONTS["ui"], 10),
             padding=(12, 6),
             borderwidth=0,
         )
@@ -155,7 +169,7 @@ class MarkItDownApp:
             "TCheckbutton",
             background=COLORS["bg"],
             foreground=COLORS["text"],
-            font=("Segoe UI", 10),
+            font=(_FONTS["ui"], 10),
         )
         style.map(
             "TCheckbutton",
@@ -219,7 +233,7 @@ class MarkItDownApp:
             fg=COLORS["text"],
             selectbackground=COLORS["primary"],
             selectforeground="white",
-            font=("Consolas", 10),
+            font=(_FONTS["mono"], 10),
             borderwidth=0,
             highlightthickness=1,
             highlightcolor=COLORS["border"],
@@ -310,7 +324,7 @@ class MarkItDownApp:
             log_frame,
             bg=COLORS["surface"],
             fg=COLORS["text"],
-            font=("Consolas", 9),
+            font=(_FONTS["mono"], 9),
             height=6,
             borderwidth=0,
             highlightthickness=1,
