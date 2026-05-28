@@ -32,12 +32,7 @@ jobs:
         run: python -c "from markitdown_app.converter import FileConverter; print('Import OK')"
 
       - name: Run conversion test
-        run: python -c "
-          from markitdown_app.converter import FileConverter;
-          fc = FileConverter();
-          print('Supported extensions:', len([e for e in fc._md._converters]));
-          print('All checks passed')
-          "
+        run: python -c "from markitdown_app.converter import FileConverter; fc = FileConverter(); print('Supported extensions:', len([e for e in fc._md._converters])); print('All checks passed')"
 
   build-windows:
     runs-on: windows-latest
