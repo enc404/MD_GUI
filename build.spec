@@ -110,5 +110,18 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,  # Add .ico path here for custom icon
+    icon=None,
 )
+
+# macOS: create .app bundle
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name="MarkItDown.app",
+        icon=None,
+        bundle_identifier="com.enc404.markitdown",
+        info_plist={
+            "NSHighResolutionCapable": True,
+            "CFBundleShortVersionString": "1.0.0",
+        },
+    )

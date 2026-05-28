@@ -1,6 +1,6 @@
 # MarkItDown App
 
-A Windows desktop application for converting files to Markdown, powered by Microsoft's [MarkItDown](https://github.com/microsoft/markitdown) library.
+A cross-platform desktop application for converting files to Markdown, powered by Microsoft's [MarkItDown](https://github.com/microsoft/markitdown) library. Available for **Windows**, **Linux**, and **macOS**.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)

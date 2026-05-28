@@ -18,7 +18,22 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: MarkItDown-Windows
+            artifact_path: dist/MarkItDown.exe
+            asset_name: MarkItDown-Windows.exe
+          - os: ubuntu-latest
+            artifact_name: MarkItDown-Linux
+            artifact_path: dist/MarkItDown
+            asset_name: MarkItDown-Linux
+          - os: macos-latest
+            artifact_name: MarkItDown-macOS
+            artifact_path: dist/MarkItDown.app
+            asset_name: MarkItDown-macOS.zip
 
     steps:
       - uses: actions/checkout@v4
@@ -40,11 +55,34 @@ jobs:
       - name: Build executable
         run: pyinstaller build.spec --distpath dist --workpath build_temp --clean -y
 
-      - name: Upload build artifact
+      - name: Make Linux binary executable
+        if: runner.os == 'Linux'
+        run: chmod +x dist/MarkItDown
+
+      - name: Package macOS app
+        if: runner.os == 'macOS'
+        run: cd dist && zip -r MarkItDown-macOS.zip MarkItDown.app
+
+      - name: Upload build artifact (Windows)
+        if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: MarkItDown-Windows-v${{ inputs.version }}
-          path: dist/MarkItDown.exe
+          name: ${{ matrix.artifact_name }}-v${{ inputs.version }}
+          path: ${{ matrix.artifact_path }}
+
+      - name: Upload build artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-v${{ inputs.version }}
+          path: ${{ matrix.artifact_path }}
+
+      - name: Upload build artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-v${{ inputs.version }}
+          path: dist/MarkItDown-macOS.zip
 
   release:
     runs-on: ubuntu-latest
@@ -53,11 +91,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download build artifact
+      - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
           name: MarkItDown-Windows-v${{ inputs.version }}
           path: release-assets
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MarkItDown-Linux-v${{ inputs.version }}
+          path: release-assets
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MarkItDown-macOS-v${{ inputs.version }}
+          path: release-assets
+
+      - name: Make Linux binary executable
+        run: chmod +x release-assets/MarkItDown
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -67,17 +120,24 @@ jobs:
           body: |
             ## MarkItDown v${{ inputs.version }}
 
-            ### Download
-            - **MarkItDown.exe** — Standalone Windows application (no Python required)
+            ### Downloads
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Windows | `MarkItDown-Windows.exe` | Standalone executable |
+            | Linux | `MarkItDown-Linux` | Standalone binary — run `chmod +x` first |
+            | macOS | `MarkItDown-macOS.zip` | Unzip to get `MarkItDown.app` |
 
             ### Supported Formats
             PDF, DOCX, PPTX, XLSX, XLS, CSV, HTML, EPUB, Images, Audio, Jupyter Notebooks, Outlook MSG, ZIP, and plain text files.
 
             ### Usage
-            1. Download `MarkItDown.exe` below
-            2. Run it — no installation needed
+            1. Download the file for your platform
+            2. Run it — no Python installation needed
             3. Add files or folders, click **Convert to Markdown**
-          files: release-assets/MarkItDown.exe
+          files: |
+            release-assets/MarkItDown.exe
+            release-assets/MarkItDown
+            release-assets/MarkItDown-macOS.zip
           draft: false
           prerelease: ${{ inputs.prerelease }}
           generate_release_notes: true

@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12"]
 
     steps:
@@ -34,9 +34,21 @@ jobs:
       - name: Run conversion test
         run: python -c "from markitdown_app.converter import FileConverter; fc = FileConverter(); print('Supported extensions:', len([e for e in fc._md._converters])); print('All checks passed')"
 
-  build-windows:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
     needs: test
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: MarkItDown-Windows
+            artifact_path: dist/MarkItDown.exe
+          - os: ubuntu-latest
+            artifact_name: MarkItDown-Linux
+            artifact_path: dist/MarkItDown
+          - os: macos-latest
+            artifact_name: MarkItDown-macOS
+            artifact_path: dist/MarkItDown.app
 
     steps:
       - uses: actions/checkout@v4
@@ -58,5 +70,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MarkItDown-Windows
-          path: dist/MarkItDown.exe
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
