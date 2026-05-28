@@ -1,16 +1,34 @@
 # -*- mode: python ; coding: utf-8 -*-
 """PyInstaller spec file for MarkItDown App."""
 
+import importlib.util
 import sys
 from pathlib import Path
 
 block_cipher = None
 
+
+def collect_package_data(package_name):
+    """Collect all non-Python data files from a package."""
+    spec = importlib.util.find_spec(package_name)
+    if spec is None or spec.origin is None:
+        return []
+    pkg_dir = str(Path(spec.origin).parent)
+    datas = []
+    for p in Path(pkg_dir).rglob("*"):
+        if p.is_file() and p.suffix not in (".py", ".pyc"):
+            datas.append((str(p), str(p.parent.relative_to(Path(pkg_dir).parent))))
+    return datas
+
+
+# Collect magika model files and config (required at runtime)
+magika_datas = collect_package_data("magika")
+
 a = Analysis(
     ["src/markitdown_app/main.py"],
     pathex=["src"],
     binaries=[],
-    datas=[],
+    datas=magika_datas,
     hiddenimports=[
         "markitdown",
         "markitdown._markitdown",
@@ -20,6 +38,9 @@ a = Analysis(
         "beautifulsoup4",
         "bs4",
         "magika",
+        "magika.magika",
+        "magika.types",
+        "magika.types.magika_error",
         "charset_normalizer",
         "defusedxml",
         "pdfminer",
