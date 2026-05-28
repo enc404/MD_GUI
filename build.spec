@@ -21,15 +21,18 @@ def collect_package_data(package_name):
     return datas
 
 
-# Collect magika model files and config (required at runtime)
-magika_datas = collect_package_data("magika")
+# Collect data files required at runtime
+all_datas = []
+for pkg in ("magika", "pdfminer", "pdfplumber", "mammoth"):
+    all_datas.extend(collect_package_data(pkg))
 
 a = Analysis(
     ["src/markitdown_app/main.py"],
     pathex=["src"],
     binaries=[],
-    datas=magika_datas,
+    datas=all_datas,
     hiddenimports=[
+        # markitdown core
         "markitdown",
         "markitdown._markitdown",
         "markitdown._base_converter",
@@ -37,19 +40,43 @@ a = Analysis(
         "markdownify",
         "beautifulsoup4",
         "bs4",
+        "charset_normalizer",
+        "defusedxml",
+        # magika (file type detection)
         "magika",
         "magika.magika",
         "magika.types",
         "magika.types.magika_error",
-        "charset_normalizer",
-        "defusedxml",
+        # PDF support
         "pdfminer",
         "pdfminer.high_level",
+        "pdfminer.pdfpage",
+        "pdfminer.pdfinterp",
+        "pdfminer.converter",
+        "pdfminer.layout",
+        "pdfplumber",
+        "pypdfium2",
+        "cryptography",
+        # DOCX support
+        "mammoth",
+        "lxml",
+        "lxml.etree",
+        # PPTX support
         "pptx",
+        "pptx.util",
+        # Excel support
         "openpyxl",
         "xlrd",
-        "docx",
+        "pandas",
+        # Outlook MSG support
+        "olefile",
+        # Audio support
+        "pydub",
+        "speech_recognition",
+        # Image support
         "PIL",
+        # YouTube support
+        "youtube_transcript_api",
     ],
     hookspath=[],
     hooksconfig={},

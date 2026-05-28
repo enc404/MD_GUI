@@ -9,7 +9,7 @@ setup(
     package_dir={"": "src"},
     python_requires=">=3.10",
     install_requires=[
-        "markitdown>=0.1.0",
+        "markitdown[all]>=0.1.0",
     ],
     entry_points={
         "gui_scripts": [
