@@ -1,0 +1,67 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run import test
+        run: python -c "from markitdown_app.converter import FileConverter; print('Import OK')"
+
+      - name: Run conversion test
+        run: python -c "
+          from markitdown_app.converter import FileConverter;
+          fc = FileConverter();
+          print('Supported extensions:', len([e for e in fc._md._converters]));
+          print('All checks passed')
+          "
+
+  build-windows:
+    runs-on: windows-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Build executable
+        run: pyinstaller build.spec --distpath dist --workpath build_temp --clean -y
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MarkItDown-Windows
+          path: dist/MarkItDown.exe
