@@ -1,2 +1,2 @@
-markitdown>=0.1.0
+markitdown[all]>=0.1.0
 pyinstaller>=6.0.0
